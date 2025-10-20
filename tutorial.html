@@ -7517,50 +7517,56 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h5 id="Introduction-to-Computational-Social-Science-(CEU,-DNDS6014,-2025)---Session-VI---Text-Analysis-II">Introduction to Computational Social Science (CEU, DNDS6014, 2025) - Session VI - Text Analysis II<a class="anchor-link" href="#Introduction-to-Computational-Social-Science-(CEU,-DNDS6014,-2025)---Session-VI---Text-Analysis-II">¶</a></h5><h5 id="Tutorial---Sentiment-and-Topic-Modeling-of-Parliamentary-Speeches">Tutorial - Sentiment and Topic Modeling of Parliamentary Speeches<a class="anchor-link" href="#Tutorial---Sentiment-and-Topic-Modeling-of-Parliamentary-Speeches">¶</a></h5><p><strong>Learning goals</strong></p>
+<h4 id="Responsible-Text-Analysis:-From-Raw-Speeches-to-Robust-Inference">Responsible Text Analysis: From Raw Speeches to Robust Inference<a class="anchor-link" href="#Responsible-Text-Analysis:-From-Raw-Speeches-to-Robust-Inference">¶</a></h4><p><strong>Learning goals</strong></p>
 <ul>
-<li><p>Applying sentiment analysis and topic modeling workflows.</p>
+<li><p>See how modeling choices (preprocessing, thresholds, algorithms, hyper-params) change results.</p>
 </li>
-<li><p>Running fine-tuned transformer models for sentiment analysis.</p>
+<li><p>Run <em>multiple</em> sentiment models and compare conclusions.</p>
 </li>
-<li><p>Using and tuning BERTopic for topic modeling.</p>
+<li><p>Tune topic modeling (UMAP/HDBSCAN) transparently and save artifacts.</p>
 </li>
-<li><p>Developing transparent preprocessing and filtering decisions. Logging for reproducibility.</p>
+<li><p>Regress sentiment on topics + covariates and assess robustness (agreement/disagreement across models).</p>
+</li>
+<li><p>Log decisions for reproducibility (avoid p-hacking; enable preregistration-style summaries).</p>
+</li>
+</ul>
+<p><strong>Data source: ParlaMint EU Parliament proceedings</strong></p>
+<ul>
+<li><p>Transcripts of speeches in EU Parliament, various languages (we use EN only).</p>
+</li>
+<li><p>Rich contextual metadata (date, role, party, country, debate topic).</p>
+</li>
+<li><p>Publicly available: <a href="https://www.clarin.si/repository/xmlui/handle/11356/2005">https://www.clarin.si/repository/xmlui/handle/11356/2005</a></p>
 </li>
 </ul>
 <p><strong>Data caveats to discuss in class</strong></p>
 <ul>
 <li><p>What is the source and fidelity of the transcripts? (OCR? edited?)</p>
 </li>
-<li><p>Contextual metadata (date, role, party) is <strong>not</strong> the text. We have to think how to include covariates.</p>
+<li><p>Contextual metadata (date, role, party) is <strong>not</strong> the text; we model both.</p>
 </li>
-<li><p>Preprocessing choices matter: what to keep / remove?</p>
+<li><p>Long speeches get truncated by transformer models unless handled carefully.</p>
 </li>
 <li><p>Topic models are unstable: different random seeds / params → different clusters.</p>
 </li>
 </ul>
-<p><strong>Artifacts</strong></p>
+<p><strong>Artifacts written</strong></p>
 <ul>
-<li><p><code>artifacts/decision_log.json</code> (preprocessing and filtering decisions)</p>
+<li><p><code>artifacts/decision_log.json</code></p>
 </li>
-<li><p><code>artifacts/parlamint_selected.csv</code> (post-filter dataset)</p>
+<li><p><code>artifacts/parlamint_selected.csv</code> (post-filter)</p>
 </li>
 <li><p><code>artifacts/enriched_sentiment.csv</code> (after each model, columns appended)</p>
 </li>
-<li><p><code>artifacts/embeddings.npy</code> (SentenceTransformer embeddings for topic modeling)</p>
+<li><p><code>artifacts/embeddings.npy</code></p>
 </li>
-<li><p><code>artifacts/hdbscan_tuning_results.csv</code> (HDBSCAN hyperparameter tuning results)</p>
+<li><p><code>artifacts/hdbscan_tuning_results.csv</code></p>
 </li>
 <li><p><code>artifacts/enriched_with_topics.csv</code> (topic ids, names, dummies)</p>
 </li>
 <li><p><code>figures/*</code> (EDA, distributions, model comparisons)</p>
 </li>
 </ul>
-<p style="font-size: 0.85em; color: #CCC;">
-<strong>Author:</strong> Bojan Evkoski<br/>
-<strong>Date:</strong> October 2025<br/>
-<strong>GenAI assistance:</strong> ChatGPT-5 Plus
-</p>
 </div>
 </div>
 </div>
@@ -7665,9 +7671,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Simple way of logging and loading data procesing decisions</span>
-
-<span class="nd">@dataclass</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Decisions</span><span class="p">:</span>
     <span class="n">min_words</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
     <span class="n">max_words</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000</span>
@@ -7880,7 +7884,7 @@ Harborough (Neil O’Brien), later this year.
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 3) Transparent preprocessing and filtering decisions ==========</span>
@@ -7936,16 +7940,16 @@ Harborough (Neil O’Brien), later this year.
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 4) Sentiment models with caching ==========</span>
 
-<span class="c1"># - Applying different sentiment metnods: rule-based, lexicon, and transformer models.</span>
+<span class="c1"># - Show differences across rule-based, lexicon, and transformer models.</span>
 
-<span class="c1"># - Normalizing outputs to a common polarity scale [-1, 1] (where feasible).</span>
+<span class="c1"># - Normalize outputs to a common polarity scale [-1, 1] (where feasible).</span>
 
-<span class="c1"># - Important: saving after each model to save time and potential re-runs.</span>
+<span class="c1"># - Save after each model to illustrate incremental analysis.</span>
 
 <span class="n">vader</span> <span class="o">=</span> <span class="n">SentimentIntensityAnalyzer</span><span class="p">()</span>
 <span class="n">harvard_dict</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">HIV4</span><span class="p">()</span>
@@ -8088,11 +8092,7 @@ Harborough (Neil O’Brien), later this year.
 <div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 5) Topic modeling with BERTopic ==========</span>
-
-<span class="c1"># - Using and tuning BERTopic for topic modeling: embeddings, UMAP, HDBSCAN, topic naming.</span>
-
-<span class="n">docs</span> <span class="o">=</span> <span class="n">enriched</span><span class="p">[</span><span class="s2">"Text"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">docs</span> <span class="o">=</span> <span class="n">enriched</span><span class="p">[</span><span class="s2">"Text"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_embeddings</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Load or compute &amp; save embeddings for a list of documents."""</span>
@@ -8232,7 +8232,20 @@ Harborough (Neil O’Brien), later this year.
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>[loaded] embeddings (31186, 768)
-[loaded] HDBSCAN tuning results
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>HDBSCAN tuning: 100%|██████████| 6/6 [08:05&lt;00:00, 80.92s/it] 
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>[saved] tuning results → artifacts\hdbscan_tuning_results.csv
 Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 [loaded] BERTopic model → artifacts\bertopic_model
 </pre>
@@ -8241,7 +8254,7 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>2025-10-17 18:14:01,901 - BERTopic - WARNING: When you use `pickle` to save/load a BERTopic model,please make sure that the environments in which you saveand load the model are **exactly** the same. The version of BERTopic,its dependencies, and python need to remain the same.
+<pre>2025-10-14 19:38:39,270 - BERTopic - WARNING: When you use `pickle` to save/load a BERTopic model,please make sure that the environments in which you saveand load the model are **exactly** the same. The version of BERTopic,its dependencies, and python need to remain the same.
 </pre>
 </div>
 </div>
@@ -8304,9 +8317,7 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 <div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Simple boxplot of topic assignment probabilities. Compare the outlier topic (-1) to others.</span>
-
-<span class="n">df_top10</span> <span class="o">=</span> <span class="n">enriched</span><span class="p">[</span><span class="n">enriched</span><span class="p">[</span><span class="s1">'topic'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">df_top10</span> <span class="o">=</span> <span class="n">enriched</span><span class="p">[</span><span class="n">enriched</span><span class="p">[</span><span class="s1">'topic'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
 <span class="n">df_top10</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">'topic_prob'</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s1">'topic'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Topic assignment probabilities (top 20 + outlier)"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">''</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">FIG_DIR</span> <span class="o">/</span> <span class="s2">"topic_prob_boxplot.png"</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">140</span><span class="p">)</span>
@@ -8380,7 +8391,7 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 6) Regression: what drives sentiment? ==========</span>
@@ -8494,12 +8505,10 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 7) Summarizing results and checking robustness ==========</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_coefficients_for_sentiment</span><span class="p">(</span><span class="n">coef_all</span><span class="p">,</span> <span class="n">sentiment_name</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -8591,10 +8600,10 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 8) Robustness lens: agreement vs disagreement ==========</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 7) Robustness lens: agreement vs disagreement ==========</span>
 
 <span class="n">coef_no_const</span> <span class="o">=</span> <span class="n">coef_all</span><span class="p">[</span><span class="n">coef_all</span><span class="p">[</span><span class="s2">"Variable"</span><span class="p">]</span><span class="o">!=</span><span class="s2">"const"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -8668,10 +8677,10 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [36]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 9) Classroom prompts &amp; “pitfalls” checklist ==========</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ========== 8) Classroom prompts &amp; “pitfalls” checklist (printed; also logged) ==========</span>
 
 <span class="n">pitfalls</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"Truncation bias"</span><span class="p">:</span> <span class="s2">"Transformer inputs truncated to 512 tokens; long speeches lose content. Consider sentence-chunking + aggregation."</span><span class="p">,</span>
@@ -8687,8 +8696,6 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
     <span class="s2">"</span><span class="se">\n\t\t</span><span class="s2">even when the model annotations contain arbitrary non-random prediction errors and biases."</span>
     <span class="s2">"</span><span class="se">\n\t\t\t</span><span class="s2">https://github.com/kristinagligoric/cdi-tutorial (Python)"</span>
     <span class="s2">"</span><span class="se">\n\t\t\t</span><span class="s2">https://naokiegami.com/dsl/ (R)."</span>
-    <span class="s2">"</span><span class="se">\n\t\t</span><span class="s2">As Grimmer and Stewart (2013) note: Validate, validate, validate!"</span>
-    <span class="s2">"</span><span class="se">\n\n</span><span class="s2">Final remark: The goal cannot be to find the one true model, but to robustly unveil certain patterns (across multiple reasonable models) to understand human behavior."</span>
 <span class="p">}</span>
 
 <span class="n">log_note</span><span class="p">(</span><span class="s2">"pitfalls"</span><span class="p">,</span> <span class="n">pitfalls</span><span class="p">)</span>
@@ -8720,10 +8727,21 @@ Best params: {'min_cluster_size': 50, 'min_samples': 5, 'neighbors': 15}
 		even when the model annotations contain arbitrary non-random prediction errors and biases.
 			https://github.com/kristinagligoric/cdi-tutorial (Python)
 			https://naokiegami.com/dsl/ (R).
-		As Grimmer and Stewart (2013) note: Validate, validate, validate!
-
-Final remark: The goal cannot be to find the one true model, but to robustly unveil certain patterns (across multiple reasonable models) to understand human behavior.
 </pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span> 
+</pre></div>
 </div>
 </div>
 </div>
